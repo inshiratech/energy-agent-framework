@@ -116,7 +116,7 @@ def run_agent_3(bill_data: Dict, research_data: Dict) -> Dict[str, Any]:
     text = text.replace("```json", "").replace("```", "").strip()
     return json.loads(text)
 
-# === UI (unchanged, just updated footer) ===
+# === UI ===
 st.title("🤖 Multi-Agent Energy Analyzer")
 st.markdown("Three specialized AI agents powered by **Groq + Llama 3.1 70B** (blazing fast & free)")
 
@@ -129,7 +129,57 @@ with col3:
     st.warning("**Agent #3: Report Generator**\n\nCompiles insights into actionable report")
 
 st.markdown("---")
-uploaded_file = st.file_uploader("Upload Energy Bill (PDF)", type=['pdf'])
+
+# Add sample data button
+col_upload, col_sample = st.columns([3, 1])
+with col_upload:
+    uploaded_file = st.file_uploader("Upload Energy Bill (PDF)", type=['pdf'])
+with col_sample:
+    st.write("")  # Spacing
+    use_sample = st.button("📄 Try Sample Data", type="secondary")
+
+if use_sample:
+    st.info("🎯 Using sample energy bill data from a typical household")
+    # Simulate realistic bill analysis
+    st.session_state['bill_analysis'] = {
+        "totalCost": 187.43,
+        "usage": 1245,
+        "ratePerKwh": 0.1506,
+        "billingPeriod": "Nov 1 - Nov 30, 2024",
+        "unusualCharges": ["Late payment fee: $5.00"],
+        "insights": "Usage is 18% higher than last month, primarily due to heating season. Peak usage hours detected between 6-9 PM."
+    }
+    
+    st.session_state['web_research'] = {
+        "averageRate": 0.1435,
+        "typicalUsage": "900-1100 kWh/month for similar household size",
+        "recommendations": [
+            "Switch to LED bulbs (save $75-100/year)",
+            "Install programmable thermostat (save $180/year)",
+            "Use energy-efficient appliances (save 10-50% on appliance costs)",
+            "Consider time-of-use rate plans for off-peak savings"
+        ],
+        "sources": ["U.S. EIA 2025", "EnergyStar.gov", "DOE Building Technologies"]
+    }
+    
+    st.session_state['final_report'] = {
+        "summary": "Your November energy bill totals $187.43 for 1,245 kWh of usage. Your effective rate of $0.1506/kWh is slightly above the national average. The increase from last month is typical for heating season.",
+        "comparison": "You're paying 4.9% above the national average rate of $0.1435/kWh. Your usage of 1,245 kWh exceeds the typical range (900-1,100 kWh) for comparable households by approximately 13-38%.",
+        "savings": [
+            "💡 Switch to LED lighting: Save ~$85/year",
+            "🌡️ Smart thermostat optimization: Save ~$180/year",
+            "⏰ Shift usage to off-peak hours: Save ~$120/year",
+            "🔌 Eliminate phantom loads: Save ~$50/year"
+        ],
+        "nextSteps": [
+            "Contact utility about time-of-use plans",
+            "Schedule home energy audit ($50-200, often rebated)",
+            "Review appliance ages - consider upgrades with rebates",
+            "Set heating/cooling to 68°F/78°F for optimal efficiency"
+        ]
+    }
+    
+    st.success("✅ Sample analysis loaded! Scroll down to see results.")
 
 if uploaded_file:
     st.success(f"✅ File uploaded: {uploaded_file.name}")
@@ -157,7 +207,7 @@ if uploaded_file:
         except Exception as e:
             st.error(f"Error: {str(e)}")
 
-# Display results (same as before)
+# Display results
 if 'bill_analysis' in st.session_state:
     st.markdown("---")
     st.header("📊 Results")
